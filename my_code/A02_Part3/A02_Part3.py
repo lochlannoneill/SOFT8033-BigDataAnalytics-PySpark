@@ -20,7 +20,9 @@
 # IMPORTS
 # ------------------------------------------
 import pyspark
-import pyspark.sql.functions
+# import pyspark.sql.functions
+from pyspark.sql import Window
+from pyspark.sql.functions import col, lag
 
 # ------------------------------------------
 # FUNCTION my_main
@@ -57,14 +59,16 @@ def my_main(spark, my_dataset_dir, bike_id):
     # ------------------------------------------------
     # START OF YOUR CODE:
     # ------------------------------------------------
+    window = Window.partitionBy("bike_id").orderBy("start_time")
 
-    # Type all your code here. Use auxiliary functions if needed.
-    pass
-
-
-
-
-
+    solutionDF = inputDF.filter(col("bike_id") == bike_id) \
+        .withColumn("prev_stop_station_name", lag(col("stop_station_name")).over(window)) \
+        .withColumn("prev_stop_time", lag(col("stop_time")).over(window)) \
+        .filter(col("prev_stop_station_name") != col("start_station_name")) \
+        .select(col("prev_stop_time").alias("start_time"),
+                col("prev_stop_station_name").alias("start_station_name"),
+                col("start_time").alias("stop_time"),
+                col("start_station_name").alias("stop_station_name"))
     # ------------------------------------------------
     # END OF YOUR CODE
     # ------------------------------------------------
@@ -79,7 +83,7 @@ def my_main(spark, my_dataset_dir, bike_id):
 # PYTHON PROGRAM EXECUTION
 #
 # Once our computer has finished processing the PYTHON PROGRAM DEFINITION section its knowledge is set.
-# Now its time to apply this knowledge.
+# Now it is time to apply this knowledge.
 #
 # When launching in a terminal the command:
 # user:~$ python3 this_file.py
