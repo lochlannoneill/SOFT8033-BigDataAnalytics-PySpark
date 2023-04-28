@@ -20,7 +20,8 @@
 # IMPORTS
 # ------------------------------------------
 import pyspark
-import pyspark.sql.functions
+# import pyspark.sql.functions
+from pyspark.sql.functions import count
 
 # ------------------------------------------
 # FUNCTION my_main
@@ -57,16 +58,21 @@ def my_main(spark, my_dataset_dir):
     # ------------------------------------------------
     # START OF YOUR CODE:
     # ------------------------------------------------
+    rdd1 = inputDF.select("start_station_name") \
+        .groupBy("start_station_name") \
+        .agg(count("start_station_name").alias("num_departure_trips")) \
+        .withColumnRenamed("start_station_name", "station")
 
-    # Type all your code here. Use auxiliary functions if needed.
-    pass
+    rdd2 = inputDF.select("stop_station_name") \
+        .groupBy("stop_station_name") \
+        .agg(count("stop_station_name").alias("num_arrival_trips")) \
+        .withColumnRenamed("stop_station_name", "station")
 
-
-
-
-
-    # ------------------------------------------------
-    # END OF YOUR CODE
+    solutionDF = rdd1.join(rdd2, "station", "outer") \
+        .na.fill(0, subset=["num_departure_trips", "num_arrival_trips"]) \
+        .orderBy("station")
+    # -----------------------------S-------------------
+    # END OF YOUR CODES
     # ------------------------------------------------
 
     # Operation A1: 'collect' to get all results
@@ -97,7 +103,7 @@ if __name__ == '__main__':
 
     # 3. We set the path to my_dataset and my_result
     my_dataset_dir = "../../my_datasets/my_dataset/"
-    my_dataset_dir = "../../my_datasets/my_streaming_dataset/file4.csv"
+    # my_dataset_dir = "../../my_datasets/my_streaming_dataset/file4.csv"
 
     if local_False_databricks_True == True:
         my_dataset_dir = "/FileStore/tables/Assignments/NYC/my_dataset/"
