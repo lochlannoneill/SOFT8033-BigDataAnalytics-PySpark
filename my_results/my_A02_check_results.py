@@ -70,20 +70,18 @@ def my_main(my_file_1, my_file_2):
 # its execution.
 # ---------------------------------------------------------------
 if __name__ == '__main__':
-    # 1. We collect the input values
-    exercise = 1
+    PARTS = 3
+    def check_part(part):
+        assignment_solutions_directory = f"./Assignment_Solutions/A02_Part{part}/result.txt"
+        student_solutions_directory = f"./Student_Solutions/A02_Part{part}/result.txt"
+        res = my_main(assignment_solutions_directory, student_solutions_directory)
+        print(f"Part {part}: {res}")
 
-    # 1.1. If we call the program from the console then we collect the arguments from it
-    if (len(sys.argv) > 1):
-        exercise = int(sys.argv[1])
-
-    # 2. We define the files to compare
-    assignment_solutions_directory = "./Assignment_Solutions/A02_Part" + str(exercise) + "/result.txt"
-    student_solutions_directory = "./Student_Solutions/A02_Part" + str(exercise) + "/result.txt"
-
-    # 3. We call to my_main
-    res = my_main(assignment_solutions_directory, student_solutions_directory)
-
-    # 4. We print whether we pass the test or not
-    print(res)
-
+    if len(sys.argv) > 1:
+        part = int(sys.argv[1])
+        check_part(part)
+    else:
+        print(f"Lochlann woz ere")
+        print(f"Student_Solutions == Assignment_Solutions")
+        for part in range(1, PARTS+1):
+            check_part(part)

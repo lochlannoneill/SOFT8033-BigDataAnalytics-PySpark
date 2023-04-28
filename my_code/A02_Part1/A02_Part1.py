@@ -20,7 +20,9 @@
 # IMPORTS
 # ------------------------------------------
 import pyspark
-import pyspark.sql.functions
+# import pyspark.sql.functions
+from pyspark.sql.functions import sum, count, desc
+
 
 # ------------------------------------------
 # FUNCTION my_main
@@ -57,20 +59,11 @@ def my_main(spark, my_dataset_dir, HEAD_LIMIT):
     # ------------------------------------------------
     # START OF YOUR CODE:
     # ------------------------------------------------
-    # 1. Select "bike_id" and "trip_duration" input dataframe, group by "bike_id"
-    rdd1 = inputDF.select("bike_id", "trip_duration").groupBy("bike_id")
-
-    # 2. Calculate total trip duration for each bike
-    rdd2 = rdd1.agg(pyspark.sql.functions.sum("trip_duration").alias("totalTime"))
-
-    # 3. Count the number of trips for each bike
-    rdd3 = rdd1.agg(pyspark.sql.functions.count("bike_id").alias("numTrips"))
-
-    # 4. Join the two RDDs on "bike_id", order by "totalTime" descending
-    rdd4 = rdd2.join(rdd3, "bike_id").orderBy("totalTime", ascending=False)
-
-    # 5. Solution with head limit
-    solutionDF = rdd4.limit(HEAD_LIMIT)
+    solutionDF = inputDF.groupBy("bike_id") \
+        .agg(sum("trip_duration").alias("totalTime"), count("bike_id").alias("numTrips")) \
+        .orderBy(desc("totalTime")) \
+        .select("bike_id", "totalTime", "numTrips") \
+        .limit(HEAD_LIMIT)
     # ------------------------------------------------
     # END OF YOUR CODE :)
     # ------------------------------------------------
