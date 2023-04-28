@@ -9,7 +9,7 @@
 
 
 ### TESTS:
-Question 1, 2, 3  
+Part 1, 2, 3  
 ![test_1_2_3](https://github.com/lochlannoneill/SOFT8033-BigDataAnalytics-PySpark/blob/main/screenshots/test_1_2_3.png?raw=true)  
-Question 4  
+Part 4  
 ![test_4](https://github.com/lochlannoneill/SOFT8033-BigDataAnalytics-PySpark/blob/main/screenshots/test_4.png?raw=true)  
