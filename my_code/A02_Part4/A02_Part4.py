@@ -21,11 +21,13 @@
 # IMPORTS
 # ------------------------------------------
 import pyspark
-import pyspark.sql.functions
+# import pyspark.sql.functions
+from pyspark.sql.functions import current_timestamp, window, col
 
 import os
 import shutil
 import time
+import dbutils
 
 
 # ------------------------------------------
@@ -77,19 +79,22 @@ def my_model(spark,
     # ------------------------------------------------
     # START OF YOUR CODE:
     # ------------------------------------------------
+    inputSDF = inputSDF \
+        .withColumn("start_time", current_timestamp()) \
+        .withWatermark("start_time", "5 seconds")
 
-    # Type all your code here. Use auxiliary functions if needed.
-    pass
+    departuresSDF = inputSDF \
+        .groupBy(window("start_time", "5 seconds"), "start_station_name") \
+        .count() \
+        .withColumnRenamed("count", "num_departures") \
+        .filter(col("num_departures") >= min_trips)
 
-
-
-
-
+    solutionSDF = departuresSDF.select("start_station_name", "num_departures")
     # ------------------------------------------------
     # END OF YOUR CODE
     # ------------------------------------------------
 
-    # 7. Operation O1: We create the DataStreamWritter, to print by console the results in complete mode
+    # 7. Operation O1: We create the DataStreamWriter, to print by console the results in complete mode
     myDSW = solutionSDF.writeStream\
                        .format("console") \
                        .trigger(processingTime=my_frequency) \
