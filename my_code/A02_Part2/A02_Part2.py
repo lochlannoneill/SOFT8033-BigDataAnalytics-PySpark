@@ -58,17 +58,17 @@ def my_main(spark, my_dataset_dir):
     # ------------------------------------------------
     # START OF YOUR CODE:
     # ------------------------------------------------
-    rdd1 = inputDF.select("start_station_name") \
+    departureDF = inputDF.select("start_station_name") \
         .groupBy("start_station_name") \
         .agg(count("start_station_name").alias("num_departure_trips")) \
         .withColumnRenamed("start_station_name", "station")
 
-    rdd2 = inputDF.select("stop_station_name") \
+    arrivalDF = inputDF.select("stop_station_name") \
         .groupBy("stop_station_name") \
         .agg(count("stop_station_name").alias("num_arrival_trips")) \
         .withColumnRenamed("stop_station_name", "station")
 
-    solutionDF = rdd1.join(rdd2, "station", "outer") \
+    solutionDF = departureDF.join(arrivalDF, "station", "outer") \
         .na.fill(0, subset=["num_departure_trips", "num_arrival_trips"]) \
         .orderBy("station")
     # -----------------------------S-------------------
